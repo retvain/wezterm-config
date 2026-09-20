@@ -55,6 +55,8 @@ config.color_schemes = {
 config.color_scheme = 'Kanagawa Dragon (Gogh)'
 config.font = wezterm.font 'JetBrains Mono'
 config.font_size = 12.0
+-- Keep the cursor steady even while terminal applications redraw frequently.
+config.cursor_blink_rate = 0
 -- This changes only the tab bar labels, not terminal text.
 config.window_frame = {
   font_size = 14.0,
