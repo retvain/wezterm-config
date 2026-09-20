@@ -117,7 +117,8 @@ config.keys = {
   },
   -- Ctrl+Shift+W: close the current tab.
   {
-    key = 'w',
+    -- Use the physical W key so the shortcut also works with a Russian layout.
+    key = 'phys:W',
     mods = 'CTRL|SHIFT',
     action = wezterm.action.CloseCurrentTab { confirm = true },
   },
