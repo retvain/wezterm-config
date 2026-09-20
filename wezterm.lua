@@ -13,6 +13,14 @@ if resurrect_ok then
     'C:\\Users\\retvain\\AppData\\Local\\WezTerm\\resurrect'
   )
   resurrect.state_manager.set_max_nlines(5000)
+  -- Restore only scrollback. Never replay a foreground program such as Claude.
+  resurrect.tab_state.default_on_pane_restore = function(pane_tree)
+    if pane_tree.text then
+      local pane = pane_tree.pane
+      pane:inject_output(pane_tree.text:gsub('%s+$', ''))
+      pane:send_text '\r\n'
+    end
+  end
   resurrect.state_manager.periodic_save {
     interval_seconds = 30,
     save_workspaces = true,
