@@ -58,6 +58,12 @@ config.keys = {
     mods = 'CTRL',
     action = wezterm.action.SpawnWindow,
   },
+  -- Ctrl+Shift+N: open a new tab from the physical N key in any layout.
+  {
+    key = 'phys:N',
+    mods = 'CTRL|SHIFT',
+    action = wezterm.action.SpawnTab 'CurrentPaneDomain',
+  },
   -- Ctrl+1 through Ctrl+9: activate a tab by its position.
   {
     key = '1',
