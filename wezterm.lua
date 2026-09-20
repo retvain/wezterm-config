@@ -166,6 +166,12 @@ config.keys = {
     mods = 'CTRL|SHIFT',
     action = wezterm.action.CloseCurrentTab { confirm = true },
   },
+  -- Alt+Shift+W: close the active pane; its tab closes when it is the last pane.
+  {
+    key = 'phys:W',
+    mods = 'ALT|SHIFT',
+    action = wezterm.action.CloseCurrentPane { confirm = true },
+  },
   -- Ctrl+Shift+R: set a custom title for the current tab.
   {
     -- Use the physical R key so the shortcut also works with a Russian layout.
