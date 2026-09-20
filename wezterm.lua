@@ -58,9 +58,15 @@ config.keys = {
     mods = 'CTRL',
     action = wezterm.action.SpawnWindow,
   },
-  -- Ctrl+Shift+N: open a new tab from the physical N key in any layout.
+  -- Ctrl+Shift+N: open a new window from the physical N key in any layout.
   {
     key = 'phys:N',
+    mods = 'CTRL|SHIFT',
+    action = wezterm.action.SpawnWindow,
+  },
+  -- Ctrl+Shift+T: open a new tab from the physical T key in any layout.
+  {
+    key = 'phys:T',
     mods = 'CTRL|SHIFT',
     action = wezterm.action.SpawnTab 'CurrentPaneDomain',
   },
