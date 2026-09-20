@@ -90,6 +90,17 @@ config.keys = {
     mods = 'CTRL',
     action = wezterm.action.SpawnWindow,
   },
+  -- Standard Windows clipboard shortcuts; physical keys work in any layout.
+  {
+    key = 'phys:C',
+    mods = 'CTRL',
+    action = wezterm.action.CopyTo 'Clipboard',
+  },
+  {
+    key = 'phys:V',
+    mods = 'CTRL',
+    action = wezterm.action.PasteFrom 'Clipboard',
+  },
   -- Ctrl+Shift+N: open a new window from the physical N key in any layout.
   {
     key = 'phys:N',
