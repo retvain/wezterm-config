@@ -10,7 +10,7 @@ local config = wezterm.config_builder()
 -- The saved JSON files are intentionally local because they can contain terminal output.
 if resurrect_ok then
   resurrect.state_manager.change_state_save_dir(
-    'C:\\Users\\retvain\\AppData\\Local\\WezTerm\\resurrect'
+    wezterm.home_dir .. '\\AppData\\Local\\WezTerm\\resurrect'
   )
   resurrect.state_manager.set_max_nlines(5000)
   -- Restore only scrollback. Never replay a foreground program such as Claude.
