@@ -123,7 +123,7 @@ config.keys = {
   },
   -- Ctrl+Shift+R: set a custom title for the current tab.
   {
-    key = 'R',
+    key = 'r',
     mods = 'CTRL|SHIFT',
     action = wezterm.action.PromptInputLine {
       description = 'Tab name:',
