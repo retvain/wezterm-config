@@ -4,6 +4,24 @@ local config = wezterm.config_builder()
 
 -- Start new tabs with PowerShell 7.
 config.default_prog = { 'C:\\Program Files\\PowerShell\\7\\pwsh.exe', '-NoLogo' }
+
+-- Bundled locally because this Gogh scheme is only built into WezTerm nightly.
+config.color_schemes = {
+  ['Kanagawa Dragon (Gogh)'] = {
+    foreground = '#C5C9C5',
+    background = '#181616',
+    cursor_bg = '#C8C093',
+    cursor_fg = '#181616',
+    ansi = {
+      '#0D0C0C', '#C4746E', '#8A9A7B', '#C4B28A',
+      '#8BA4B0', '#A292A3', '#8EA4A2', '#C8C093',
+    },
+    brights = {
+      '#A6A69C', '#E46876', '#87A987', '#E6C384',
+      '#7FB4CA', '#938AA9', '#7AA89F', '#C5C9C5',
+    },
+  },
+}
 config.color_scheme = 'Kanagawa Dragon (Gogh)'
 
 -- Alt+Shift+D: split the current pane and open PowerShell 7 in the new pane.
