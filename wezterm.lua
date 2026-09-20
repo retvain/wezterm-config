@@ -1,6 +1,28 @@
 local wezterm = require 'wezterm'
+local resurrect_ok, resurrect = pcall(
+  wezterm.plugin.require,
+  'https://github.com/YedPool/Wezurrect'
+)
 
 local config = wezterm.config_builder()
+
+-- Persist windows, tabs, pane layout and recent scrollback outside this Git repo.
+-- The saved JSON files are intentionally local because they can contain terminal output.
+if resurrect_ok then
+  resurrect.state_manager.change_state_save_dir(
+    'C:\\Users\\retvain\\AppData\\Local\\WezTerm\\resurrect'
+  )
+  resurrect.state_manager.set_max_nlines(5000)
+  resurrect.state_manager.periodic_save {
+    interval_seconds = 30,
+    save_workspaces = true,
+    save_windows = true,
+    save_tabs = true,
+  }
+  wezterm.on('gui-startup', resurrect.state_manager.resurrect_on_gui_startup)
+else
+  wezterm.log_warn('Wezurrect session persistence plugin could not be loaded')
+end
 
 -- Start new tabs with PowerShell 7.
 config.default_prog = { 'C:\\Program Files\\PowerShell\\7\\pwsh.exe', '-NoLogo' }
