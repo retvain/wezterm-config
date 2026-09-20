@@ -22,7 +22,7 @@ config.color_schemes = {
     },
   },
 }
-config.color_scheme = 'Rosé Pine (Gogh)'
+config.color_scheme = 'Kanagawa Dragon (Gogh)'
 config.font = wezterm.font 'JetBrains Mono'
 config.font_size = 12.0
 
