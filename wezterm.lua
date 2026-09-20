@@ -29,10 +29,10 @@ config.keys = {
     mods = 'ALT',
     action = wezterm.action.ActivatePaneDirection 'Down',
   },
-  -- Ctrl+Alt+O: split the active pane top/bottom, placing the new pane below.
+  -- Alt+Shift+O: split the active pane top/bottom, placing the new pane below.
   {
     key = 'phys:O',
-    mods = 'CTRL|ALT',
+    mods = 'ALT|SHIFT',
     action = wezterm.action.SplitPane {
       direction = 'Down',
       size = { Percent = 50 },
