@@ -58,6 +58,82 @@ config.keys = {
     mods = 'CTRL',
     action = wezterm.action.SpawnWindow,
   },
+  -- Ctrl+1 through Ctrl+9: activate a tab by its position.
+  {
+    key = '1',
+    mods = 'CTRL',
+    action = wezterm.action.ActivateTab(0),
+  },
+  {
+    key = '2',
+    mods = 'CTRL',
+    action = wezterm.action.ActivateTab(1),
+  },
+  {
+    key = '3',
+    mods = 'CTRL',
+    action = wezterm.action.ActivateTab(2),
+  },
+  {
+    key = '4',
+    mods = 'CTRL',
+    action = wezterm.action.ActivateTab(3),
+  },
+  {
+    key = '5',
+    mods = 'CTRL',
+    action = wezterm.action.ActivateTab(4),
+  },
+  {
+    key = '6',
+    mods = 'CTRL',
+    action = wezterm.action.ActivateTab(5),
+  },
+  {
+    key = '7',
+    mods = 'CTRL',
+    action = wezterm.action.ActivateTab(6),
+  },
+  {
+    key = '8',
+    mods = 'CTRL',
+    action = wezterm.action.ActivateTab(7),
+  },
+  {
+    key = '9',
+    mods = 'CTRL',
+    action = wezterm.action.ActivateTab(8),
+  },
+  -- Ctrl+Alt+Arrow: move through the tab list.
+  {
+    key = 'LeftArrow',
+    mods = 'CTRL|ALT',
+    action = wezterm.action.ActivateTabRelative(-1),
+  },
+  {
+    key = 'RightArrow',
+    mods = 'CTRL|ALT',
+    action = wezterm.action.ActivateTabRelative(1),
+  },
+  -- Ctrl+Alt+W: close the current tab.
+  {
+    key = 'W',
+    mods = 'CTRL|ALT',
+    action = wezterm.action.CloseCurrentTab { confirm = true },
+  },
+  -- Ctrl+Shift+R: set a custom title for the current tab.
+  {
+    key = 'R',
+    mods = 'CTRL|SHIFT',
+    action = wezterm.action.PromptInputLine {
+      description = 'Tab name:',
+      action = wezterm.action_callback(function(_, pane, line)
+        if line then
+          pane:tab():set_title(line)
+        end
+      end),
+    },
+  },
   -- Alt+Arrow: move focus to an adjacent pane.
   {
     key = 'LeftArrow',
