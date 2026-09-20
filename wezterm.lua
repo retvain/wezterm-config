@@ -29,6 +29,27 @@ config.keys = {
     mods = 'ALT',
     action = wezterm.action.ActivatePaneDirection 'Down',
   },
+  -- Alt+Shift+Arrow: resize the active pane by moving the matching divider.
+  {
+    key = 'LeftArrow',
+    mods = 'ALT|SHIFT',
+    action = wezterm.action.AdjustPaneSize { 'Left', 5 },
+  },
+  {
+    key = 'RightArrow',
+    mods = 'ALT|SHIFT',
+    action = wezterm.action.AdjustPaneSize { 'Right', 5 },
+  },
+  {
+    key = 'UpArrow',
+    mods = 'ALT|SHIFT',
+    action = wezterm.action.AdjustPaneSize { 'Up', 5 },
+  },
+  {
+    key = 'DownArrow',
+    mods = 'ALT|SHIFT',
+    action = wezterm.action.AdjustPaneSize { 'Down', 5 },
+  },
   -- Alt+Shift+O: split the active pane top/bottom, placing the new pane below.
   {
     key = 'phys:O',
