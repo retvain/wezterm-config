@@ -115,10 +115,10 @@ config.keys = {
     mods = 'CTRL|ALT',
     action = wezterm.action.ActivateTabRelative(1),
   },
-  -- Ctrl+Alt+W: close the current tab.
+  -- Ctrl+Shift+W: close the current tab.
   {
-    key = 'W',
-    mods = 'CTRL|ALT',
+    key = 'w',
+    mods = 'CTRL|SHIFT',
     action = wezterm.action.CloseCurrentTab { confirm = true },
   },
   -- Ctrl+Shift+R: set a custom title for the current tab.
