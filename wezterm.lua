@@ -25,6 +25,10 @@ config.color_schemes = {
 config.color_scheme = 'Kanagawa Dragon (Gogh)'
 config.font = wezterm.font 'JetBrains Mono'
 config.font_size = 12.0
+-- This changes only the tab bar labels, not terminal text.
+config.window_frame = {
+  font_size = 14.0,
+}
 
 -- Ctrl+F12 toggles the native title bar while retaining the tab bar.
 wezterm.on('toggle-title-bar', function(window, _)
