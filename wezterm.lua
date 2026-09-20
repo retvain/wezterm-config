@@ -101,6 +101,12 @@ config.keys = {
     mods = 'CTRL',
     action = wezterm.action.PasteFrom 'Clipboard',
   },
+  -- Ctrl+Shift+O: fuzzy-search tabs by their title from any keyboard layout.
+  {
+    key = 'phys:O',
+    mods = 'CTRL|SHIFT',
+    action = wezterm.action.ShowLauncherArgs { flags = 'FUZZY|TABS' },
+  },
   -- Ctrl+Shift+N: open a new window from the physical N key in any layout.
   {
     key = 'phys:N',
