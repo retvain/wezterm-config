@@ -134,6 +134,12 @@ config.keys = {
       end),
     },
   },
+  -- Keep the built-in Ctrl+R configuration reload shortcut.
+  {
+    key = 'r',
+    mods = 'CTRL',
+    action = wezterm.action.ReloadConfiguration,
+  },
   -- Alt+Arrow: move focus to an adjacent pane.
   {
     key = 'LeftArrow',
