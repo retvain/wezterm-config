@@ -33,22 +33,22 @@ config.keys = {
   {
     key = 'LeftArrow',
     mods = 'ALT|SHIFT',
-    action = wezterm.action.AdjustPaneSize { 'Left', 5 },
+    action = wezterm.action.AdjustPaneSize { 'Left', 2 },
   },
   {
     key = 'RightArrow',
     mods = 'ALT|SHIFT',
-    action = wezterm.action.AdjustPaneSize { 'Right', 5 },
+    action = wezterm.action.AdjustPaneSize { 'Right', 2 },
   },
   {
     key = 'UpArrow',
     mods = 'ALT|SHIFT',
-    action = wezterm.action.AdjustPaneSize { 'Up', 5 },
+    action = wezterm.action.AdjustPaneSize { 'Up', 2 },
   },
   {
     key = 'DownArrow',
     mods = 'ALT|SHIFT',
-    action = wezterm.action.AdjustPaneSize { 'Down', 5 },
+    action = wezterm.action.AdjustPaneSize { 'Down', 2 },
   },
   -- Alt+Shift+O: split the active pane top/bottom, placing the new pane below.
   {
