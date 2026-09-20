@@ -26,7 +26,7 @@ config.color_scheme = 'Kanagawa Dragon (Gogh)'
 config.font = wezterm.font 'JetBrains Mono'
 config.font_size = 12.0
 
--- F12 toggles the native title bar while retaining the tab bar.
+-- Ctrl+F12 toggles the native title bar while retaining the tab bar.
 wezterm.on('toggle-title-bar', function(window, _)
   local overrides = window:get_config_overrides() or {}
 
@@ -42,10 +42,17 @@ end)
 -- Alt+Shift+D: split the current pane and open PowerShell 7 in the new pane.
 -- `phys:D` refers to the physical D-key, so this works with a Russian layout too.
 config.keys = {
-  -- F12: hide/show the native title bar with minimize, maximize and close buttons.
+  -- Ctrl+F12: hide/show the native title bar with minimize, maximize and close buttons.
   {
     key = 'F12',
+    mods = 'CTRL',
     action = wezterm.action.EmitEvent 'toggle-title-bar',
+  },
+  -- Ctrl+N: open a complete new WezTerm window.
+  {
+    key = 'N',
+    mods = 'CTRL',
+    action = wezterm.action.SpawnWindow,
   },
   -- Alt+Arrow: move focus to an adjacent pane.
   {
