@@ -4,6 +4,7 @@ local config = wezterm.config_builder()
 
 -- Start new tabs with PowerShell 7.
 config.default_prog = { 'C:\\Program Files\\PowerShell\\7\\pwsh.exe', '-NoLogo' }
+config.color_scheme = 'Rosé Pine (Gogh)'
 
 -- Alt+Shift+D: split the current pane and open PowerShell 7 in the new pane.
 -- `phys:D` refers to the physical D-key, so this works with a Russian layout too.
