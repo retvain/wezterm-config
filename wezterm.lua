@@ -168,7 +168,8 @@ config.keys = {
   },
   -- Ctrl+Shift+R: set a custom title for the current tab.
   {
-    key = 'r',
+    -- Use the physical R key so the shortcut also works with a Russian layout.
+    key = 'phys:R',
     mods = 'CTRL|SHIFT',
     action = wezterm.action.PromptInputLine {
       description = 'Tab name:',
