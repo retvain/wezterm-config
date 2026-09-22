@@ -78,6 +78,74 @@ end)
 -- Alt+Shift+D: split the current pane and open PowerShell 7 in the new pane.
 -- `phys:D` refers to the physical D-key, so this works with a Russian layout too.
 config.keys = {
+  -- Alt+Shift+F: fuzzy-find a pane across every open window and workspace.
+  -- The mux is queried only when the shortcut is pressed; nothing is cached or polled.
+  {
+    key = 'phys:F',
+    mods = 'ALT|SHIFT',
+    action = wezterm.action_callback(function(window, pane)
+      local choices = {}
+      local targets = {}
+
+      for _, mux_window in ipairs(wezterm.mux.all_windows()) do
+        local workspace = mux_window:get_workspace()
+
+        for _, tab in ipairs(mux_window:tabs()) do
+          local tab_title = tab:get_title()
+          if tab_title == '' then
+            tab_title = tab:active_pane():get_title()
+          end
+
+          for _, target_pane in ipairs(tab:panes()) do
+            local cwd = target_pane:get_current_working_dir()
+            if cwd then
+              cwd = type(cwd) == 'string' and cwd or cwd.file_path
+            end
+
+            local pane_id = tostring(target_pane:pane_id())
+            targets[pane_id] = {
+              pane = target_pane,
+              window = mux_window,
+              workspace = workspace,
+            }
+            table.insert(choices, {
+              id = pane_id,
+              label = string.format(
+                '[%s]  %s  |  %s  |  %s',
+                workspace,
+                tab_title,
+                target_pane:get_title(),
+                cwd or 'cwd unavailable'
+              ),
+            })
+          end
+        end
+      end
+
+      window:perform_action(wezterm.action.InputSelector {
+        title = 'Find pane',
+        fuzzy = true,
+        fuzzy_description = 'Fuzzy find pane: ',
+        choices = choices,
+        action = wezterm.action_callback(function(_, _, id, _)
+          local target = id and targets[id]
+          if not target then
+            return
+          end
+
+          if wezterm.mux.get_active_workspace() ~= target.workspace then
+            wezterm.mux.set_active_workspace(target.workspace)
+          end
+
+          target.pane:activate()
+          local gui_window = target.window:gui_window()
+          if gui_window then
+            gui_window:focus()
+          end
+        end),
+      }, pane)
+    end),
+  },
   -- Ctrl+F12: hide/show the native title bar with minimize, maximize and close buttons.
   {
     key = 'F12',
