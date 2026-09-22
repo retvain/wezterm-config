@@ -176,6 +176,17 @@ config.keys = {
     mods = 'CTRL|ALT',
     action = wezterm.action.ActivateTabRelative(1),
   },
+  -- Ctrl+Shift+J/K: move the active tab left/right using physical keys in any layout.
+  {
+    key = 'phys:J',
+    mods = 'CTRL|SHIFT',
+    action = wezterm.action.MoveTabRelative(-1),
+  },
+  {
+    key = 'phys:K',
+    mods = 'CTRL|SHIFT',
+    action = wezterm.action.MoveTabRelative(1),
+  },
   -- Ctrl+Shift+W: close the current tab.
   {
     -- Use the physical W key so the shortcut also works with a Russian layout.
@@ -267,6 +278,13 @@ config.keys = {
       direction = 'Right',
       size = { Percent = 50 },
     },
+  },
+  -- Alt+Shift+I: rotate panes; with two panes this swaps left/right (or top/bottom).
+  -- The physical I key makes the shortcut independent of the active keyboard layout.
+  {
+    key = 'phys:I',
+    mods = 'ALT|SHIFT',
+    action = wezterm.action.RotatePanes 'Clockwise',
   },
 }
 
