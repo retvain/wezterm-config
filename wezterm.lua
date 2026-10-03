@@ -1,36 +1,11 @@
 local wezterm = require 'wezterm'
-local resurrect_ok, resurrect = pcall(
-  wezterm.plugin.require,
-  'https://github.com/YedPool/Wezurrect'
-)
 
 local config = wezterm.config_builder()
 
--- Persist windows, tabs, pane layout and recent scrollback outside this Git repo.
--- The saved JSON files are intentionally local because they can contain terminal output.
-if resurrect_ok then
-  resurrect.state_manager.change_state_save_dir(
-    wezterm.home_dir .. '\\AppData\\Local\\WezTerm\\resurrect'
-  )
-  resurrect.state_manager.set_max_nlines(5000)
-  -- Restore only scrollback. Never replay a foreground program such as Claude.
-  resurrect.tab_state.default_on_pane_restore = function(pane_tree)
-    if pane_tree.text then
-      local pane = pane_tree.pane
-      pane:inject_output(pane_tree.text:gsub('%s+$', ''))
-      pane:send_text '\r\n'
-    end
-  end
-  resurrect.state_manager.periodic_save {
-    interval_seconds = 30,
-    save_workspaces = true,
-    save_windows = true,
-    save_tabs = true,
-  }
-  wezterm.on('gui-startup', resurrect.state_manager.resurrect_on_gui_startup)
-else
-  wezterm.log_warn('Wezurrect session persistence plugin could not be loaded')
-end
+-- Match a 144 Hz display and prefer the discrete GPU for rendering.
+config.max_fps = 144
+config.front_end = 'WebGpu'
+config.webgpu_power_preference = 'HighPerformance'
 
 -- Start new tabs with PowerShell 7.
 config.default_prog = { 'C:\\Program Files\\PowerShell\\7\\pwsh.exe', '-NoLogo' }
@@ -74,6 +49,85 @@ wezterm.on('toggle-title-bar', function(window, _)
 
   window:set_config_overrides(overrides)
 end)
+
+-- Keep an MRU list per window. Formatting runs when the selected tab changes,
+-- including when a tab is selected with the mouse or another shortcut.
+local tab_history = {}
+
+local function observe_tab(window_id, active_id, live_tabs)
+  local state = tab_history[window_id]
+  if not state then
+    state = { order = {}, active_id = nil, position = 1 }
+    tab_history[window_id] = state
+  end
+
+  local live = {}
+  for _, tab in ipairs(live_tabs) do
+    live[tab.tab_id] = true
+  end
+  for i = #state.order, 1, -1 do
+    if not live[state.order[i]] then
+      table.remove(state.order, i)
+    end
+  end
+
+  if state.active_id ~= active_id then
+    for i, id in ipairs(state.order) do
+      if id == active_id then
+        table.remove(state.order, i)
+        break
+      end
+    end
+    table.insert(state.order, 1, active_id)
+    state.active_id = active_id
+    state.position = 1
+  else
+    for i, id in ipairs(state.order) do
+      if id == active_id then
+        state.position = i
+        break
+      end
+    end
+  end
+
+  return state
+end
+
+wezterm.on('format-tab-title', function(tab, tabs)
+  if tab.is_active then
+    observe_tab(tab.window_id, tab.tab_id, tabs)
+  end
+end)
+
+local function cycle_tab_history(direction)
+  return wezterm.action_callback(function(window, pane)
+    local tabs = window:mux_window():tabs_with_info()
+    local active_id
+    local indexes = {}
+    local live_tabs = {}
+    for _, item in ipairs(tabs) do
+      local id = item.tab:tab_id()
+      indexes[id] = item.index
+      table.insert(live_tabs, { tab_id = id })
+      if item.is_active then
+        active_id = id
+      end
+    end
+    if not active_id then
+      return
+    end
+
+    local state = observe_tab(window:window_id(), active_id, live_tabs)
+    if #state.order < 2 then
+      return
+    end
+
+    state.position = (state.position - 1 + direction) % #state.order + 1
+    local target_id = state.order[state.position]
+    state.active_id = target_id
+    window:perform_action(wezterm.action.ActivateTab(indexes[target_id]), pane)
+  end)
+end
 
 -- Alt+Shift+D: split the current pane and open PowerShell 7 in the new pane.
 -- `phys:D` refers to the physical D-key, so this works with a Russian layout too.
@@ -158,15 +212,33 @@ config.keys = {
     mods = 'CTRL',
     action = wezterm.action.SpawnWindow,
   },
-  -- Standard Windows clipboard shortcuts; physical keys work in any layout.
+  -- Ctrl+C copies and clears a selection, or interrupts the terminal app.
   {
     key = 'phys:C',
     mods = 'CTRL',
-    action = wezterm.action.CopyTo 'Clipboard',
+    action = wezterm.action_callback(function(window, pane)
+      if window:get_selection_text_for_pane(pane) ~= '' then
+        window:perform_action(wezterm.action.CopyTo 'Clipboard', pane)
+        window:perform_action(wezterm.action.ClearSelection, pane)
+      else
+        window:perform_action(wezterm.action.SendKey { key = 'c', mods = 'CTRL' }, pane)
+      end
+    end),
   },
   {
     key = 'phys:V',
     mods = 'CTRL',
+    action = wezterm.action.PasteFrom 'Clipboard',
+  },
+  -- Ctrl+Shift+C/V: clipboard shortcuts; physical keys work in any layout.
+  {
+    key = 'phys:C',
+    mods = 'CTRL|SHIFT',
+    action = wezterm.action.CopyTo 'Clipboard',
+  },
+  {
+    key = 'phys:V',
+    mods = 'CTRL|SHIFT',
     action = wezterm.action.PasteFrom 'Clipboard',
   },
   -- Ctrl+Shift+O: fuzzy-search tabs by their title from any keyboard layout.
@@ -186,6 +258,17 @@ config.keys = {
     key = 'phys:T',
     mods = 'CTRL|SHIFT',
     action = wezterm.action.SpawnTab 'CurrentPaneDomain',
+  },
+  -- Cycle through recently visited tabs in both directions.
+  {
+    key = 'Tab',
+    mods = 'CTRL',
+    action = cycle_tab_history(1),
+  },
+  {
+    key = 'Tab',
+    mods = 'CTRL|SHIFT',
+    action = cycle_tab_history(-1),
   },
   -- Ctrl+1 through Ctrl+9: activate a tab by its position.
   {
@@ -282,11 +365,17 @@ config.keys = {
       end),
     },
   },
-  -- Keep the built-in Ctrl+R configuration reload shortcut.
+  -- Let Ctrl+R reach the shell (PSReadLine's reverse command-history search)
+  -- instead of invoking WezTerm's default configuration reload action.
   {
     key = 'r',
     mods = 'CTRL',
-    action = wezterm.action.ReloadConfiguration,
+    action = wezterm.action.DisableDefaultAssignment,
+  },
+  {
+    key = 'R',
+    mods = 'CTRL',
+    action = wezterm.action.DisableDefaultAssignment,
   },
   -- Alt+Arrow: move focus to an adjacent pane.
   {
