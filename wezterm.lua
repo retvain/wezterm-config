@@ -132,7 +132,7 @@ end
 -- Alt+Shift+D: split the current pane and open PowerShell 7 in the new pane.
 -- `phys:D` refers to the physical D-key, so this works with a Russian layout too.
 config.keys = {
-  -- Alt+Shift+F: fuzzy-find a pane across every open window and workspace.
+  -- Alt+Shift+F: fuzzy-find a pane by tab number, title or cwd across all windows.
   -- The mux is queried only when the shortcut is pressed; nothing is cached or polled.
   {
     key = 'phys:F',
@@ -144,7 +144,9 @@ config.keys = {
       for _, mux_window in ipairs(wezterm.mux.all_windows()) do
         local workspace = mux_window:get_workspace()
 
-        for _, tab in ipairs(mux_window:tabs()) do
+        for _, item in ipairs(mux_window:tabs_with_info()) do
+          local tab = item.tab
+          local tab_number = item.index + 1
           local tab_title = tab:get_title()
           if tab_title == '' then
             tab_title = tab:active_pane():get_title()
@@ -165,8 +167,9 @@ config.keys = {
             table.insert(choices, {
               id = pane_id,
               label = string.format(
-                '[%s]  %s  |  %s  |  %s',
+                '[%s]  #%d  %s  |  %s  |  %s',
                 workspace,
+                tab_number,
                 tab_title,
                 target_pane:get_title(),
                 cwd or 'cwd unavailable'
@@ -435,6 +438,46 @@ config.keys = {
       direction = 'Right',
       size = { Percent = 50 },
     },
+  },
+  -- Alt+Shift+R: toggle two panes directly, without temporary tabs.
+  {
+    key = 'phys:R',
+    mods = 'ALT|SHIFT',
+    action = wezterm.action_callback(function(window, pane)
+      local tab = pane:tab()
+      local panes = tab:panes_with_info()
+      if #panes ~= 2 then
+        return
+      end
+
+      -- Keep the first (left/top) pane in place so its index remains valid.
+      table.sort(panes, function(a, b)
+        if a.top == b.top then
+          return a.left < b.left
+        end
+        return a.top < b.top
+      end)
+      local direction = panes[1].top == panes[2].top and '--bottom' or '--right'
+      local was_zoomed = panes[1].is_zoomed or panes[2].is_zoomed
+      tab:set_zoomed(false)
+
+      local success, _, stderr = wezterm.run_child_process {
+        wezterm.executable_dir .. '/wezterm.exe',
+        'cli', 'split-pane',
+        '--pane-id', tostring(panes[1].pane:pane_id()),
+        '--move-pane-id', tostring(panes[2].pane:pane_id()),
+        direction, '--percent', '50',
+      }
+      tab:activate()
+      pane:activate()
+      if was_zoomed then
+        tab:set_zoomed(true)
+      end
+      if not success then
+        wezterm.log_error('Failed to toggle split orientation: ' .. stderr)
+        window:toast_notification('WezTerm', 'Could not change split orientation; see debug log.', nil, 3000)
+      end
+    end),
   },
   -- Alt+Shift+I: rotate panes; with two panes this swaps left/right (or top/bottom).
   -- The physical I key makes the shortcut independent of the active keyboard layout.
